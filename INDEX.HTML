@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="English">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Impostor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One:wght@400&family=Poppins:wght@600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: linear-gradient(135deg, #0a0a1a, #1a0033);
+            --card: rgba(255, 255, 255, 0.1);
+            --glass: rgba(255, 255, 255, 0.08);
+            --neon-blue: #00f2ff;
+            --neon-pink: #ff00aa;
+            --neon-green: #39ff14;
+            --neon-purple: #9d00ff;
+            --text: #ffffff;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            min-height: 100vh;
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Poppins', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+            overflow-x: hidden;
+        }
+        .container {
+            width: 100%;
+            max-width: 420px;
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border-radius: 28px;
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+            overflow: hidden;
+            position: relative;
+        }
+        .header {
+            background: linear-gradient(45deg, var(--neon-purple), var(--neon-blue));
+            padding: 30px 20px 40px;
+            text-align: center;
+            clip-path: polygon(0 0, 100% 0, 100% 80%, 0 100%);
+        }
+        h1 {
+            font-family: 'Fredoka One', cursive;
+            font-size: 3.5rem;
+            background: linear-gradient(90deg, #fff, #39ff14);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(57,255,20,0.5);
+        }
+        .subtitle {
+            font-size: 1.2rem;
+            margin-top: 10px;
+            opacity: 0.9;
+        }
+
+        .section { display:none; padding:20px; }
+        .section.active { display:block; animation: pop 0.5s; }
+        @keyframes pop { from {transform:scale(0.9); opacity:0;} to {transform:scale(1); opacity:1;} }
+
+        /* Botones nivel */
+        .level-btns { display:flex; gap:15px; justify-content:center; flex-wrap:wrap; margin:30px 0; }
+        .level-btn {
+            padding:16px 28px;
+            border-radius: 50px;
+            border: none;
+            font-weight: bold;
+            font-size:1.1rem;
+            background: var(--glass);
+            color:white;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+            transition: all 0.3s;
+        }
+        .level-btn.active {
+            background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple));
+            transform: translateY(-8px);
+            box-shadow: 0 15px 30px rgba(0,242,255,0.4);
+        }
+
+        /* Contador jugadores */
+        .players-control {
+            display:flex; align-items:center; justify-content:center; gap:30px; margin:40px 0; font-size:3rem; font-weight:bold;
+        }
+        .players-btn {
+            width:70px; height:70px; border-radius:50%; background: var(--neon-pink); color:#000;
+            font-size:2.5rem; border:none; box-shadow:0 0 20px rgba(255,0,170,0.6);
+        }
+
+        /* Botones grandes */
+        .btn-vibe {
+            background: linear-gradient(45deg, var(--neon-green), #00ffaa);
+            color:#000; font-weight:900; font-size:1.5rem; padding:18px;
+            border-radius:20px; border:none; width:90%; max-width:340px; margin:25px auto;
+            box-shadow:0 10px 30px rgba(57,255,20,0.5); transition:all 0.3s;
+        }
+        .btn-vibe.red { background: linear-gradient(45deg, #ff0055, #ff00aa); box-shadow:0 10px 30px rgba(255,0,85,0.6); }
+        .btn-vibe:active { transform:scale(0.95); }
+
+        /* Tarjetas */
+        .card-area {
+            background: var(--card);
+            backdrop-filter: blur(15px);
+            border-radius:24px;
+            padding:40px 20px;
+            margin:30px 0;
+            border:1px solid rgba(255,255,255,0.1);
+        }
+        .normal-card {
+            background: linear-gradient(135deg, #00f2ff, #9d00ff);
+            padding:35px; border-radius:24px; text-align:center;
+            box-shadow:0 15px 40px rgba(0,242,255,0.4);
+        }
+        .impostor-card {
+            background: linear-gradient(135deg, #ff0055, #ff00aa);
+            padding:35px; border-radius:24px; text-align:center;
+            box-shadow:0 15px 40px rgba(255,0,85,0.6);
+        }
+        .word {
+            font-size:3.5rem; font-weight:900; margin:20px 0;
+            text-shadow: 0 0 20px rgba(255,255,255,0.6);
+        }
+
+        /* Timer y votos */
+        .timer {
+            font-size:4.5rem; font-weight:900; margin:30px 0;
+            background: linear-gradient(90deg, #ff00aa, #00f2ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .vote-btn {
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            padding:20px; margin:12px 0;
+            border-radius:20px; font-size:1.5rem; font-weight:bold;
+            border:2px solid transparent;
+            transition:all 0.3s;
+        }
+        .vote-btn.selected {
+            border:2px solid var(--neon-green);
+            background: rgba(57,255,20,0.2);
+            transform:scale(1.05);
+            box-shadow:0 0 30px rgba(57,255,20,0.5);
+        }
+
+        .result {
+            font-size:2.5rem; font-weight:900; padding:40px; border-radius:24px;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(15px);
+            margin:30px 0;
+        }
+        .success { color:var(--neon-green); text-shadow:0 0 30px rgba(57,255,20,0.6); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Impostor<br>English</h1>
+            <p class="subtitle">Who is the infiltrator?</p>
+        </div>
+
+        <!-- 1. Config -->
+        <div id="config" class="section active">
+            <div class="level-btns">
+                <button class="level-btn active" data-level="basico">Basic</button>
+                <button class="level-btn" data-level="medio">Medium</button>
+                <button class="level-btn" data-level="avanzado">Advanced</button>
+            </div>
+
+            <div class="players-control">
+                <button id="minus" class="players-btn">-</button>
+                <span id="num-players">5</span>
+                <button id="plus" class="players-btn">+</button>
+            </div>
+
+            <button id="go-names" class="btn-vibe">Next → Names</button>
+        </div>
+
+        <!-- 2. Nombres -->
+        <div id="names" class="section">
+            <h2 style="font-size:2rem;margin-bottom:20px;">Write your names</h2>
+            <div id="names-list" style="max-height:400px;overflow-y:auto;"></div>
+            <button id="start-game" class="btn-vibe">¡PLAY NOW!</button>
+        </div>
+
+        <!-- 3. Tarjetas -->
+        <div id="cards" class="section">
+            <h2 style="font-size:2rem;margin:20px 0;"><span id="current-name">Player 1</span><br>only you see</h2>
+            <div id="before-reveal" class="card-area">
+                <button id="reveal" class="btn-vibe red" style="font-size:1.8rem;">SEE MY CARD</button>
+            </div>
+            <div id="after-reveal" class="card-area" style="display:none;">
+                <div id="card-content"></div>
+                <button id="next-player" class="btn-vibe" style="margin-top:30px;">Ready → Next</button>
+            </div>
+        </div>
+
+        <!-- 4. Votación -->
+        <div id="voting" class="section">
+            <h2 style="font-size:2.5rem;">¡VOTE!</h2>
+            <div class="timer" id="timer">05:00</div>
+            <p style="font-size:1.4rem;margin:20px 0;">Who is the impostor?</p>
+            <div id="vote-options"></div>
+            <button id="confirm-vote" class="btn-vibe red" style="display:none;font-size:1.8rem;">¡VOTE NOW!</button>
+        </div>
+
+        <!-- 5. Resultado -->
+        <div id="result" class="section">
+            <h2 style="font-size:3rem;">¡BOOM!</h2>
+            <div id="result-message" class="result"></div>
+            <p style="font-size:1.8rem;margin:30px 0;">
+                The impostor was:<br>
+                <strong id="impostor-name" style="font-size:2.8rem;color:var(--neon-pink);"></strong>
+            </p>
+            <button id="new-round" class="btn-vibe">Our round</button>
+            <button id="back-menu" class="btn-vibe" style="background:#333;opacity:0.8;margin-top:15px;">Main menu</button>
+        </div>
+    </div>
+
+    <script>
+        const palabras = { /* ← Aquí pega exactamente tu objeto palabras que me enviaste antes (basico, medio, avanzado) */ 
+            basico: [
+                { real: "School", decoy: "Classroom" },
+                { real: "Teacher", decoy: "Student" },
+                { real: "Student", decoy: "Lesson" },
+                { real: "Family", decoy: "Home" },
+                { real: "Mother", decoy: "Father" },
+                { real: "Father", decoy: "Parent" },
+                { real: "Sister", decoy: "Brother" },
+                { real: "Brother", decoy: "Sibling" },
+                { real: "Classroom", decoy: "Desk" },
+                { real: "Book", decoy: "Page" },
+                { real: "Chair", decoy: "Table" },
+                { real: "Table", decoy: "Desk" },
+                { real: "Home", decoy: "House" },
+                { real: "Pencil", decoy: "Sharpener" },
+                { real: "Bag", decoy: "Backpack" },
+            ],
+            medio: [
+                { real: "Schoolbag", decoy: "Backpack" },
+                { real: "Teacher’s desk", decoy: "Chalk" },
+                { real: "Student desk", decoy: "Chair" },
+                { real: "Eraser", decoy: "Pencil" },
+                { real: "Notebook", decoy: "Pen" },
+                { real: "Pen", decoy: "Ink" },
+                { real: "Ruler", decoy: "Centimeters" },
+                { real: "Crayon", decoy: "Color" },
+                { real: "Family member", decoy: "Grandmother" },
+                { real: "Metal", decoy: "No metal" },
+                { real: "Parents", decoy: "Mother" },
+                { real: "Children", decoy: "Play" },
+                { real: "Baby", decoy: "Toddler" },
+                { real: "Bedroom", decoy: "Bed" },
+                { real: "Kitchen", decoy: "Cooking" },
+                { real: "Living room", decoy: "Sofa" },
+            ],
+            avanzado: [
+                { real: "Homework", decoy: "Assignment" },
+                { real: "Notebook", decoy: "Paper" },
+                { real: "Timetable", decoy: "Schedule" },
+                { real: "Playground", decoy: "Slide" },
+                { real: "Classmate", decoy: "Friend" },
+                { real: "Principal", decoy: "School" },
+                { real: "Backpack", decoy: "Bag" },
+                { real: "Schedule", decoy: "Calendar" },
+                { real: "Cousin", decoy: "Relative" },
+                { real: "Grandparents", decoy: "Grandchild" },
+                { real: "Household", decoy: "Family" },
+                { real: "Assignment", decoy: "Task" },
+                { real: "Subject", decoy: "Topic" },
+                { real: "Library", decoy: "Books" },
+                { real: "Blackboard", decoy: "Marker" },
+            ]
+        };
+
+        // ← El resto del JavaScript es exactamente el mismo que en la versión anterior (funciona perfecto)
+        // Lo incluyo completo para que solo copies y pegues:
+
+        let nivel = "basico", numJugadores = 5, nombres = [], palabraReal = "", palabraDecoy = "", impostorIndex = 0, jugadorActual = 0, votoGrupo = null, timerInterval;
+
+        document.querySelectorAll('.level-btn').forEach(b=>b.addEventListener('click',()=>{ document.querySelector('.level-btn.active').classList.remove('active'); b.classList.add('active'); nivel = b.dataset.level; }));
+        document.getElementById('minus').onclick = () => { if(numJugadores>3){numJugadores--; document.getElementById('num-players').textContent=numJugadores;}}
+        document.getElementById('plus').onclick = () => { if(numJugadores<10){numJugadores++; document.getElementById('num-players').textContent=numJugadores;}}
+
+        document.getElementById('go-names').onclick = () => { nombres = Array.from({length:numJugadores},(_,i)=>`Player ${i+1}`); showNames(); showSection('names'); };
+        function showNames(){ let l=document.getElementById('names-list'); l.innerHTML=''; nombres.forEach((n,i)=>{ l.innerHTML+=`<div style="margin:12px 0;"><input type="text" value="${n}" data-i="${i}" style="width:100%;padding:16px;border-radius:16px;background:rgba(255,255,255,0.1);border:none;color:white;font-size:1.3rem;text-align:center;"></div>`; }); l.querySelectorAll('input').forEach(i=>i.addEventListener('change',e=>nombres[e.target.dataset.i]=e.target.value.trim()||`Jugador ${+e.target.dataset.i+1}`)); }
+        document.getElementById('start-game').onclick = iniciarRonda;
+
+        function iniciarRonda(){ const p=palabras[nivel][Math.floor(Math.random()*palabras[nivel].length)]; palabraReal=p.real; palabraDecoy=p.decoy; impostorIndex=Math.floor(Math.random()*numJugadores); jugadorActual=0; votoGrupo=null; showSection('cards'); nextPlayer(); }
+        function nextPlayer(){ if(jugadorActual>=numJugadores){startVoting();return;} document.getElementById('current-name').textContent=nombres[jugadorActual]; document.getElementById('before-reveal').style.display='block'; document.getElementById('after-reveal').style.display='none'; }
+        document.getElementById('reveal').onclick = () => { const c=document.getElementById('card-content'); if(jugadorActual===impostorIndex){ c.innerHTML=`<div class="impostor-card"><div class="word">¡IMPOSTOR!</div><p>Your false word:</p><div class="word">${palabraDecoy}</div></div>`;}else{ c.innerHTML=`<div class="normal-card"><p>The word is:</p><div class="word">${palabraReal}</div></div>`;} document.getElementById('before-reveal').style.display='none'; document.getElementById('after-reveal').style.display='block';};
+        document.getElementById('next-player').onclick = () => { jugadorActual++; nextPlayer(); };
+
+        function startVoting(){ showSection('voting'); votoGrupo=null; document.getElementById('confirm-vote').style.display='none'; const o=document.getElementById('vote-options'); o.innerHTML=''; nombres.forEach((n,i)=>{ const b=document.createElement('button'); b.className='vote-btn'; b.textContent=n; b.onclick=()=>{ votoGrupo=i; document.querySelectorAll('.vote-btn').forEach(x=>x.classList.remove('selected')); b.classList.add('selected'); document.getElementById('confirm-vote').style.display='block';}; o.appendChild(b);}); startTimer(300); }
+        function startTimer(s){ let t=s; clearInterval(timerInterval); timerInterval=setInterval(()=>{ t--; let m=Math.floor(t/60).toString().padStart(2,'0'), sec=t%60; document.getElementById('timer').textContent=`${m}:${sec.toString().padStart(2,'0')}`; if(t<=0){clearInterval(timerInterval);mostrarResultado();}},1000);}
+        document.getElementById('confirm-vote').onclick = mostrarResultado;
+        function mostrarResultado(){ clearInterval(timerInterval); showSection('result'); const ok=(votoGrupo===impostorIndex); document.getElementById('impostor-name').textContent=nombres[impostorIndex]; const m=document.getElementById('result-message'); if(ok){ m.textContent="¡THEY CAUGHT HIM!"; m.classList.add('success'); } else { m.textContent=votoGrupo===null?"¡TIME IS UP!\nImpostor ganó":"¡IMPOSTOR WIN!"; }}
+        document.getElementById('new-round').onclick=iniciarRonda;
+        document.getElementById('back-menu').onclick=()=>showSection('config');
+        function showSection(id){ document.querySelectorAll('.section').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
+    </script>
+</body>
+</html>
